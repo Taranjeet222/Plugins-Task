@@ -46,6 +46,7 @@ function enqueue_admin_scripts() {
     wp_enqueue_script('jquery');
     wp_enqueue_script('jquery-ui-core');
     wp_enqueue_script('jquery-ui-dialog');
+    wp_enqueue_style('wp-jquery-ui-dialog');
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-calendar.php';

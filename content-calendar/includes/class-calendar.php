@@ -97,25 +97,37 @@ class Calendar extends WP_List_Table{
         $output .= '<p class="cal-date">'. $date .'</p>';
         $output .= '<div class="date-area">';
         $output .= '<div id="' . $form_id . '" class="form-area hide">';
-        $output .= '<form method="post">'; 
+        $users = get_users();
+        $output .= '<h2 id="add-event-header">Add new event</h2>';
+        $output .= '<form method="post" class="display-forms">'; 
         $output .= '<p ><span class="fas fa-file-alt"></span> Post title:</p>';
         $output .= '<input type="text" name="post_title">';
 
         $output .= '<p ><span class="fas fa-user"></span> Author:</p>';
-        $output .= '<input type="text" name="author">';
+        $output .= '<select name="author">';
+        foreach ($users as $user) {
+            $output .= '<option value="' . $user->ID . '">' . $user->display_name . '</option>';
+        }
+        $output .= '</select>';
+       
 
         $output .= '<p ><span class="fas fa-eye"></span> Reviewer:</p>';
-        $output .= '<input type="text" name="reviewer">';
+        $output .= '<select name="reviewer">';
+        foreach ($users as $user) {
+            $output .= '<option value="' . $user->ID . '">' . $user->display_name . '</option>';
+        }
+        $output .= '</select>';
 
         $output .= '<p ><span class="fas fa-calendar"></span> Occasion:</p>';
         $output .= '<input type="text" name="occasion">';
         $name = 'info_submit_'.$d;
-        $output .= '<input class="form-submit" type="submit" name="' . $name . '" value="Submit">';
+        $output .= '<input id = "add-event-submit" class="form-submit" type="submit" name="' . $name . '" value="Submit">';
 
         $output .= '</form>';
         $output .= '</div>';
         $output .= '</div>';
         if (isset($_POST[$name])) {
+            
             $post_title = $_POST['post_title'];
             $author = $_POST['author'];
             $reviewer = $_POST['reviewer'];
@@ -127,7 +139,8 @@ class Calendar extends WP_List_Table{
         $output .= '<div class="fetched-data">';
         $output .= '<ul class="custom-list">';
         foreach ($data as $row) {
-            $output .= '<li>' . $row->post_title .'</li>';
+            $edit_form_id = 'edit_submit_'.$row->post_title;
+            $output .= '<li onclick="ShowEditForm(\'' . $edit_form_id . '\')" >' . $row->post_title .'</li>';
         }
 
         $output .= '</ul>';
@@ -153,29 +166,40 @@ class Calendar extends WP_List_Table{
     public function edit_form($date){
         $data = $this->fetch_data($date);
         $output = '';
-        $id = 'edit_submit_'.$date;
-        $output .= '<div class="edit-form hide" id="'.$id.'">';
+        $users = get_users();
+        $output .= '<div class="edit-form">';
         foreach ($data as $row) {
             $name = 'edit_submit_'.$row->post_title;
-            $output .= '<form method="post" class="display-edit-form" >
+            $id = 'edit_submit_'.$row->post_title;
+            $output .= '<form method="post" class="display-edit-form hide display-forms" id="'.$id.'">
                         <p><span class="fas fa-file-alt"></span> Post title:</p>
                         <input type="text" name="post_title" value="'.$row->post_title.'">
                         
                         <p><span class="fas fa-user"></span> Author:</p>
-                        <input type="text" name="author" value="'.$row->author.'">
-
-                        <p><span class="fas fa-eye"></span> Reviewer:</p>
-                        <input type="text" name="reviewer" value="'.$row->reviewer.'">
-
-                        <p><span class="fas fa-calendar"></span> Occasion:</p>
+                        <select name="author">';
+            foreach ($users as $user) {
+                $output .= '<option value="' . $user->ID . '" ' . selected($user->ID, $row->author, false) . '>' . $user->display_name . '</option>';
+            }
+            $output .= '</select>';
+    
+            $output .= '<p><span class="fas fa-eye"></span> Reviewer:</p>
+                        <select name="reviewer">';
+            foreach ($users as $user) {
+                $output .= '<option value="' . $user->ID . '" ' . selected($user->ID, $row->reviewer, false) . '>' . $user->display_name . '</option>';
+            }
+            $output .= '</select>';
+    
+            $output .= '<p><span class="fas fa-calendar"></span> Occasion:</p>
                         <input type="text" name="occasion" value="'.$row->occasion.'">
                     ';
-                    $del_name = 'delete_'. $name;
+    
+            $del_name = 'delete_'. $name;
             $output .= '<div class="panel">';
-            $output .= '<input  type="submit" name="' . $name . '" value="Submit">';
+            $output .= '<input type="submit" name="' . $name . '" value="Submit">';
             $output .= '<button class="del-button" type="submit" name="' . $del_name . '" >Delete</button>';
             $output .= '</div>';
             $output .= '</form>';
+            
             if(isset($_POST[$del_name]))
             {
                 $this->delete_form($row->post_title);
@@ -187,13 +211,14 @@ class Calendar extends WP_List_Table{
                 $author = $_POST['author'];
                 $reviewer = $_POST['reviewer'];
                 $occasion = $_POST['occasion'];
-                $this->update_form($old_name,$post_title, $author, $reviewer, $occasion, $date);
+                $this->update_form($old_name, $post_title, $author, $reviewer, $occasion, $date);
                 echo '<script>window.location.reload();</script>';
             }
         }
         $output .= '</div>';
         echo $output;
     }
+    
     public function delete_form($post_title) {
         global $wpdb;
 
@@ -294,7 +319,7 @@ class Add_Menu{
 
         <label for="calendar_year" id="year-label">Year:</label>
         <select name="calendar_year" id="calendar_year">
-        <?php for ($year = 1950; $year <= $currentYear; $year++) {
+        <?php for ($year = 1950; $year <= date('Y'); $year++) {
            echo '<option value="' . $year . '"';
            if ($year == $currentYear) echo 'selected';
            echo '>' . $year . '</option>';

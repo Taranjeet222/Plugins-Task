@@ -4,12 +4,11 @@
 .calendar-item:hover{
   cursor: pointer;
 }
+.calendar-item{
+  overflow-y: scroll;
+}
 td{
   border: 2px solid black;
-  overflow-y: auto;
-  overflow-x: auto;
-  height: 100px !important;
-  box-sizing: border-box;
 }
 .add-event{
   display: inline-block;
@@ -46,6 +45,12 @@ td{
   margin-left: 5px;
   padding: 4px;
   cursor: pointer;
+  background-color: #0686f7;
+  color: white;
+  border-radius: 5px;
+}
+#select-month-year-submit:hover{
+  background-color:blue;
 }
 .custom-list{
   list-style-position: inside;
@@ -78,4 +83,24 @@ td{
   display:flex;
   margin-top:10px;
   justify-content: space-between;
+}
+#add-event-header{
+  text-align: center;
+}
+input[type=submit]{
+  padding: 4px;
+  cursor: pointer;
+  background-color: #0686f7;
+  color: white;
+  border-radius: 5px;
+}
+input[type=submit]:hover{
+  background-color:blue;
+}
+button[type=submit]{
+  padding: 4px;
+  cursor: pointer;
+  background-color: #b80303;
+  color: white;
+  border-radius: 5px;
 }

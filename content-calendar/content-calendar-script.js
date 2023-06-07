@@ -24,6 +24,7 @@ function showForm(formId) {
   form.dialog({
     modal: true,
     width: 400,
+    title: 'Add New Event',
     open: function () {
       
     },
@@ -52,6 +53,7 @@ function ShowEditForm(formId) {
   form.dialog({
     modal: true,
     width: 400,
+    title: 'Edit Form',
     open: function () {
         
     },
@@ -59,4 +61,17 @@ function ShowEditForm(formId) {
       jQuery(this).dialog('destroy');
     }
   });
+}
+function showToday() {
+  var currentDate = new Date();
+  var currentMonth = currentDate.getMonth() + 1;
+  var currentYear = currentDate.getFullYear();
+  
+  document.getElementById('calendar_month').value = currentMonth;
+  document.getElementById('calendar_year').value = currentYear;
+  
+  var form = document.getElementsByClassName('select-month-year');
+
+  form[0].submit();
+
 }

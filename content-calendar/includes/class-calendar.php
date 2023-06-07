@@ -22,8 +22,6 @@ class Calendar extends WP_List_Table{
         $this->_column_headers = array($columns, $hidden, $sortable);
         $days = array();
         $currentDay = 1;
-        // $currentMonth = date('n');
-        // $this->currentYear = date('Y');
         $this->currentMonth = isset($_SESSION['calendar_month']) ? $_SESSION['calendar_month'] : date('n');
         $this->currentYear = isset($_SESSION['calendar_year']) ? $_SESSION['calendar_year'] : date('Y');
         if(isset($_POST['calendar_month']) && isset($_POST['calendar_year']))
@@ -94,32 +92,38 @@ class Calendar extends WP_List_Table{
         $form_id = 'form_' . $column_name . '_' . $date;
         $edit_form_id = 'edit_submit_'.$d;
         $output = '<div class="calendar-item" onclick="ShowEditForm(\'' . $edit_form_id . '\')">';
+        $output .= '<div class="date-wrap">';
         $output .= '<p class="cal-date">'. $date .'</p>';
+        $output .= '<p class="add-event" onclick="showForm(\'' . $form_id . '\')">Add event</p>';
+        $output .= '</div>';
         $output .= '<div class="date-area">';
         $output .= '<div id="' . $form_id . '" class="form-area hide">';
         $users = get_users();
-        $output .= '<h2 id="add-event-header">Add new event</h2>';
-        $output .= '<form method="post" class="display-forms">'; 
+        $output .= '<form method="post" class="display-forms">';
+        $output .= '<div class="input-wrap">'; 
         $output .= '<p ><span class="fas fa-file-alt"></span> Post title:</p>';
         $output .= '<input type="text" name="post_title">';
-
+        $output .= '</div>';
+        $output .= '<div class="input-wrap">'; 
         $output .= '<p ><span class="fas fa-user"></span> Author:</p>';
         $output .= '<select name="author">';
         foreach ($users as $user) {
             $output .= '<option value="' . $user->ID . '">' . $user->display_name . '</option>';
         }
         $output .= '</select>';
-       
-
+        $output .= '</div>';
+        $output .= '<div class="input-wrap">';
         $output .= '<p ><span class="fas fa-eye"></span> Reviewer:</p>';
         $output .= '<select name="reviewer">';
         foreach ($users as $user) {
             $output .= '<option value="' . $user->ID . '">' . $user->display_name . '</option>';
         }
         $output .= '</select>';
-
+        $output .= '</div>';
+        $output .= '<div class="input-wrap">';
         $output .= '<p ><span class="fas fa-calendar"></span> Occasion:</p>';
         $output .= '<input type="text" name="occasion">';
+        $output .= '</div>';
         $name = 'info_submit_'.$d;
         $output .= '<input id = "add-event-submit" class="form-submit" type="submit" name="' . $name . '" value="Submit">';
 
@@ -146,7 +150,7 @@ class Calendar extends WP_List_Table{
         $output .= '</ul>';
         $output .= '</div>';
         $output .= '</div>';
-        $output .= '<p class="add-event" onclick="showForm(\'' . $form_id . '\')">Add event</p>';
+        // $output .= '<p class="add-event" onclick="showForm(\'' . $form_id . '\')">Add event</p>';
         echo $output;
     }
     public function store_data($post_title, $author, $reviewer, $occasion, $date) {
@@ -172,27 +176,31 @@ class Calendar extends WP_List_Table{
             $name = 'edit_submit_'.$row->post_title;
             $id = 'edit_submit_'.$row->post_title;
             $output .= '<form method="post" class="display-edit-form hide display-forms" id="'.$id.'">
+                        <div class="input-wrap">
                         <p><span class="fas fa-file-alt"></span> Post title:</p>
                         <input type="text" name="post_title" value="'.$row->post_title.'">
-                        
+                        </div>
+                        <div class="input-wrap">
                         <p><span class="fas fa-user"></span> Author:</p>
                         <select name="author">';
             foreach ($users as $user) {
                 $output .= '<option value="' . $user->ID . '" ' . selected($user->ID, $row->author, false) . '>' . $user->display_name . '</option>';
             }
             $output .= '</select>';
-    
+            $output .= '</div>';
+            $output .= '<div class="input-wrap">';
             $output .= '<p><span class="fas fa-eye"></span> Reviewer:</p>
                         <select name="reviewer">';
             foreach ($users as $user) {
                 $output .= '<option value="' . $user->ID . '" ' . selected($user->ID, $row->reviewer, false) . '>' . $user->display_name . '</option>';
             }
             $output .= '</select>';
-    
+            $output .= '</div>';
+            $output .= '<div class="input-wrap">';
             $output .= '<p><span class="fas fa-calendar"></span> Occasion:</p>
                         <input type="text" name="occasion" value="'.$row->occasion.'">
                     ';
-    
+            $output .= '</div>';
             $del_name = 'delete_'. $name;
             $output .= '<div class="panel">';
             $output .= '<input type="submit" name="' . $name . '" value="Submit">';
@@ -286,9 +294,6 @@ class Add_Menu{
         ob_start();
         $currentMonth = date('n');
         $currentYear = date('Y');
-
-        $currentMonth = isset($_SESSION['calendar_month']) ? $_SESSION['calendar_month'] : date('n');
-        $currentYear = isset($_SESSION['calendar_year']) ? $_SESSION['calendar_year'] : date('Y');
         if(isset($_POST['calendar_month']) && isset($_POST['calendar_year']))
         {
             $currentMonth = $_POST['calendar_month'];
@@ -296,11 +301,23 @@ class Add_Menu{
             $_SESSION['calendar_month'] = $currentMonth;
             $_SESSION['calendar_year'] = $currentYear;
         }
+        if (isset($_SESSION['calendar_month'])) {
+        $currentMonth = $_SESSION['calendar_month'];
+        } else {
+            $_SESSION['calendar_month'] = $currentMonth;
+        }
+
+        if (isset($_SESSION['calendar_year'])) {
+            $currentYear = $_SESSION['calendar_year'];
+        } else {
+            $_SESSION['calendar_year'] = $currentYear;
+        }
         $no_days = cal_days_in_month(CAL_GREGORIAN,$currentMonth,$currentYear);
         ?>
         <div class="wrap">
         <h1>Content Calendar</h1>
         <form method="post" class="select-month-year">
+        <div class="conatiner-month-year">
         <label for="calendar_month" id="month-label">Month:</label>
         <select name="calendar_month" id="calendar_month">
         <option value="1" <?php if ($currentMonth == 1) echo 'selected'; ?>>January</option>
@@ -327,7 +344,7 @@ class Add_Menu{
         </select>
         <input type="submit" id="select-month-year-submit" value="Submit">
         </form>
-
+        <span id="select-span" onclick="showToday()">Show Today</span>
         <?php
         $mon = array(
             '1' => 'January',
@@ -343,6 +360,7 @@ class Add_Menu{
             '11' => 'November',
             '12' => 'December'
         );
+        echo '<div class="wrapper">';
         echo '<h2>'.$mon[$currentMonth].' '.$currentYear.'</h2>';
         $Calendar_obj->display();
         for($i=1;$i<=$no_days;$i++)
@@ -350,6 +368,7 @@ class Add_Menu{
             $d = date('Y-m-d', strtotime($currentYear . '-' . $currentMonth . '-' . $i));
             $Calendar_obj->edit_form($d);
         }
+        echo '</div>';
         $output .= ob_get_clean();
         echo $output;
     }

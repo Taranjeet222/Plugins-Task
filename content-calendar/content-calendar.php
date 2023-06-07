@@ -4,19 +4,39 @@
  * Description: Plugin to display content calendar.
  * Version: 1.0.0
  * Author: Taranjeet
+ * Author URI: http://example.com/
+ * Plugin URI: https://example.com/
  */
 
- function my_plugin_activation_hook() {
-   
+function my_plugin_activation_hook() {
+    db_myplugin();
+}
+function db_myplugin(){
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'content_calendar';
+    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+        $sql = "CREATE TABLE $table_name (
+            date DATE NOT NULL,
+            occasion VARCHAR(255) NOT NULL,
+            post_title VARCHAR(255) NOT NULL,
+            author VARCHAR(255) NOT NULL,
+            reviewer VARCHAR(255) NOT NULL
+        )";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
 }
 
-add_action('admin_init','my_plugin_activation_hook');
 register_activation_hook( __FILE__, 'my_plugin_activation_hook' );
 
 function my_plugin_deactivation_hook() {
-   
+    // we don't want to delete the data.
+    // global $wpdb;
+    // $table_name = $wpdb->prefix . 'content_calendar';
+    // $wpdb->query("DROP TABLE IF EXISTS $table_name");
 }
-register_deactivation_hook( __FILE__ , ' my_plugin_deactivation_hook ' );
+register_deactivation_hook(__FILE__, 'my_plugin_deactivation_hook');
 
 add_action('admin_print_styles', 'add_my_stylesheet');
 function add_my_stylesheet() 
